@@ -91,6 +91,8 @@ class SpecialRecentActivityFeed extends ChangesListSpecialPage {
 		$opts->add( 'hidepatrolled', false );
 		$opts->add( 'hidemyself', false );
 
+		$opts->add( 'order', 'article' );
+
 		return $opts;
 	}
 
@@ -124,43 +126,6 @@ class SpecialRecentActivityFeed extends ChangesListSpecialPage {
 		);
 
 		$this->setBottomText( $opts );
-	}
-
-	/**
-	 * Build and output the actual changes list.
-	 *
-	 * @param array $rows Database rows
-	 * @param FormOptions $opts
-	 */
-	public function outputChangesList( $rows, $opts ) {
-		$list = ChangesList::newFromContext( $this->getContext() );
-		$list->initChangesListRows( $rows );
-
-		$limit = $opts['limit'];
-
-		$rclistOutput = $list->beginRecentChangesList();
-		foreach ( $rows as $obj ) {
-			if ( $limit == 0 ) {
-				break;
-			}
-			$rc = RecentChange::newFromRow( $obj );
-			$changeLine = $list->recentChangesLine( $rc );
-			if ( $changeLine !== false ) {
-				$rclistOutput .= $changeLine;
-				--$limit;
-			}
-		}
-		$rclistOutput .= $list->endRecentChangesList();
-
-		if ( $rows->numRows() === 0 ) {
-			$this->getOutput()->addHtml(
-				'<div class="mw-changeslist-empty">' .
-				$this->msg( 'recentchanges-noresult' )->parse() .
-				'</div>'
-			);
-		} else {
-			$this->getOutput()->addHTML( $rclistOutput );
-		}
 	}
 
 	/**
@@ -226,6 +191,57 @@ class SpecialRecentActivityFeed extends ChangesListSpecialPage {
 
 
 	/**
+	 * Build and output the actual changes list.
+	 *
+	 * @param array $rows Database rows
+	 * @param FormOptions $opts
+	 */
+	public function outputChangesList( $rows, $opts ) {
+		$list = ChangesList::newFromContext( $this->getContext() );
+		$list->initChangesListRows( $rows );
+
+		$limit = $opts['limit'];
+		$order = $opts['order'];
+
+//		$rclistOutput = $list->beginRecentChangesList();
+		$ordered_rc = array();
+		foreach ( $rows as $obj ) {
+			if ( $limit == 0 ) {
+				break;
+			}
+			$rc = RecentChange::newFromRow( $obj );
+			if ($order == 'article'){
+			   $ordered_rc[$rc->getTitle()->getFullText()][] = $rc;
+			} else {
+			   $ordered_rc[$rc->getPerformer()->getName()][] = $rc;
+			}
+		}
+
+		foreach($ordered_rc as $key => $rc_list) {
+			$rclistOutput .= "<h4>$key</h4>";
+			foreach($rc_list as $rc) {
+				$changeLine = $list->recentChangesLine( $rc );
+ 				if ( $changeLine !== false ) {
+				   $rclistOutput .= $changeLine;
+				   --$limit;
+				}
+			}
+		}
+//		$rclistOutput .= $list->endRecentChangesList();
+
+		if ( $rows->numRows() === 0 ) {
+			$this->getOutput()->addHtml(
+				'<div class="mw-changeslist-empty">' .
+				$this->msg( 'recentchanges-noresult' )->parse() .
+				'</div>'
+			);
+		} else {
+			$this->getOutput()->addHTML( $rclistOutput );
+		}
+	}
+
+
+	/**
 	 * Creates the options panel.
 	 *
 	 * @param array $defaults
@@ -284,7 +300,7 @@ class SpecialRecentActivityFeed extends ChangesListSpecialPage {
 			'hideminor' => 'rcshowhideminor',
 			'hidebots' => 'rcshowhidebots',
 			'hideanons' => 'rcshowhideanons',
-			'hideliu' => 'rcshowhideliu',
+			'Hideliu' => 'rcshowhideliu',
 			'hidepatrolled' => 'rcshowhidepatr',
 			'hidemyself' => 'rcshowhidemine'
 		);
@@ -308,7 +324,16 @@ class SpecialRecentActivityFeed extends ChangesListSpecialPage {
 		$links = array();
 		$rclinks = $this->msg( 'rclinks' )->rawParams( $cl, $dl, $lang->pipeList( $links ) )
 			->parse();
-		return "{$note}$rclinks<br />";
+
+		$orderTypes = array('article', 'user');
+		foreach ( $orderTypes as $value ) {
+			$ol[] = $this->makeOptionsLink( 'by ' . $value,
+				array( 'order' => $value ), $nondefaults, $value == $options['order'] );
+		}
+
+		$orderlinks = implode(' | ', $ol);
+		$orderlinks = "Order activity $orderlinks";
+		return "{$note}$rclinks<br /> $orderlinks";
 	}
 
 	/**
