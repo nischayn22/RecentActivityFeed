@@ -119,7 +119,7 @@ class SpecialRecentActivityFeed extends ChangesListSpecialPage {
 
 		$this->getOutput()->addHTML(
 			Xml::fieldset(
-				$this->msg( 'recentchanges-legend' )->text(),
+				$this->msg( 'recentactivityfeed-legend' )->text(),
 				$panelString,
 				array( 'class' => 'rcoptions' )
 			)
@@ -218,11 +218,22 @@ class SpecialRecentActivityFeed extends ChangesListSpecialPage {
 		}
 
 		foreach($ordered_rc as $key => $rc_list) {
-			$rclistOutput .= "<h4>$key</h4>";
+			$heading = '';
+			if ($order == 'user'){
+			   $heading = Linker::userLink($rc_list[0]->mAttribs['rc_user'], $key);
+			   $heading .= ' (';
+			   $heading .= Linker::userTalkLink($rc_list[0]->mAttribs['rc_user'], $key);
+			   $heading .= ' | ';
+			   $heading .= Linker::link( SpecialPage::getTitleFor( 'Contributions', $key), 'contribs' );
+			   $heading .= ') ';
+			} else {
+			  $list->insertArticleLink( $heading, $rc_list[0] );
+			}
+			$rclistOutput .= "<h4>$heading</h4>";
 			foreach($rc_list as $rc) {
 				$changeLine = $this->makeChangesLine( $list, $rc, $order );
  				if ( $changeLine !== false ) {
-				   $rclistOutput .= $changeLine;
+				   $rclistOutput .= "<div style=\"margin-left:20px;\">$changeLine </div>";
 				   --$limit;
 				}
 			}
@@ -397,7 +408,7 @@ class SpecialRecentActivityFeed extends ChangesListSpecialPage {
 		if ( $cd !== '' ) {
 			$s .= $cd . '  <span class="mw-changeslist-separator">. .</span> ';
 		}
-		if ($order != 'article')
+		if ($order != 'article' &&  $rc->mAttribs['rc_type'] != RC_LOG )
 		   $list->insertArticleLink( $s, $rc, $unpatrolled, $watched );
 		if ( $rc->mAttribs['rc_type'] == RC_LOG ) {
 			$s .= $list->insertLogEntry( $rc );
