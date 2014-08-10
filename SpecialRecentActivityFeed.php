@@ -203,7 +203,7 @@ class SpecialRecentActivityFeed extends ChangesListSpecialPage {
 		$limit = $opts['limit'];
 		$order = $opts['order'];
 
-//		$rclistOutput = $list->beginRecentChangesList();
+		$rclistOutput = $list->beginRecentChangesList();
 		$ordered_rc = array();
 		foreach ( $rows as $obj ) {
 			if ( $limit == 0 ) {
@@ -220,14 +220,14 @@ class SpecialRecentActivityFeed extends ChangesListSpecialPage {
 		foreach($ordered_rc as $key => $rc_list) {
 			$rclistOutput .= "<h4>$key</h4>";
 			foreach($rc_list as $rc) {
-				$changeLine = $list->recentChangesLine( $rc );
+				$changeLine = $this->makeChangesLine( $list, $rc, $order );
  				if ( $changeLine !== false ) {
 				   $rclistOutput .= $changeLine;
 				   --$limit;
 				}
 			}
 		}
-//		$rclistOutput .= $list->endRecentChangesList();
+		$rclistOutput .= $list->endRecentChangesList();
 
 		if ( $rows->numRows() === 0 ) {
 			$this->getOutput()->addHtml(
@@ -333,7 +333,7 @@ class SpecialRecentActivityFeed extends ChangesListSpecialPage {
 
 		$orderlinks = implode(' | ', $ol);
 		$orderlinks = "Order activity $orderlinks";
-		return "{$note}$rclinks<br /> $orderlinks";
+		return "{$note}$rclinks $orderlinks";
 	}
 
 	/**
@@ -363,6 +363,53 @@ class SpecialRecentActivityFeed extends ChangesListSpecialPage {
 		}
 
 		return Linker::linkKnown( $this->getPageTitle(), $text, array(), $params );
+	}
+
+	function makeChangesLine($list, $rc, $order){
+		$s = '';
+		$date = $list->getLanguage()->userDate( $rc_timestamp, $list->getUser() );
+		if ( $rc->mAttribs['rc_log_type'] ) {
+			$logtitle = SpecialPage::getTitleFor( 'Log', $rc->mAttribs['rc_log_type'] );
+			$list->insertLog( $s, $logtitle, $rc->mAttribs['rc_log_type'] );
+		// Log entries (old format) or log targets, and special pages
+		} elseif ( $rc->mAttribs['rc_namespace'] == NS_SPECIAL ) {
+			list( $name, $subpage ) = SpecialPageFactory::resolveAlias( $rc->mAttribs['rc_title'] );
+			if ( $name == 'Log' ) {
+				$list->insertLog( $s, $rc->getTitle(), $subpage );
+			}
+		// Regular entries
+		} else {
+			$list->insertDiffHist( $s, $rc, $unpatrolled );
+			# M, N, b and ! (minor, new, bot and unpatrolled)
+			$s .= $list->recentChangesFlags(
+				array(
+					'newpage' => $rc->mAttribs['rc_type'] == RC_NEW,
+					'minor' => $rc->mAttribs['rc_minor'],
+					'unpatrolled' => $unpatrolled,
+					'bot' => $rc->mAttribs['rc_bot']
+				),
+				''
+			);
+		}
+		$s .= $date;
+		$list->insertTimestamp( $s, $rc );
+		$cd = $list->formatCharacterDifference( $rc );
+		if ( $cd !== '' ) {
+			$s .= $cd . '  <span class="mw-changeslist-separator">. .</span> ';
+		}
+		if ($order != 'article')
+		   $list->insertArticleLink( $s, $rc, $unpatrolled, $watched );
+		if ( $rc->mAttribs['rc_type'] == RC_LOG ) {
+			$s .= $list->insertLogEntry( $rc );
+		} else {
+			# User tool links
+			if ($order != 'user')
+			   $list->insertUserRelatedLinks( $s, $rc );
+			# LTR/RTL direction mark
+			$s .= $list->getLanguage()->getDirMark();
+			$s .= $list->insertComment( $rc );
+		}
+		return "$s <br/>";
 	}
 
 }
