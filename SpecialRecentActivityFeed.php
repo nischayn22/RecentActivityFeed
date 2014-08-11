@@ -228,7 +228,7 @@ class SpecialRecentActivityFeed extends ChangesListSpecialPage {
 			   $heading .= Linker::link( SpecialPage::getTitleFor( 'Contributions', $key), 'contribs' );
 			   $heading .= ') ';
 			} else {
-			  $list->insertArticleLink( $heading, $rc_list[0] );
+			  $list->insertArticleLink( $heading, $rc_list[0], 0, 0 );
 			}
 			$rclistOutput .= "<h4>$heading</h4>";
 			foreach($rc_list as $rc) {
@@ -325,7 +325,7 @@ class SpecialRecentActivityFeed extends ChangesListSpecialPage {
 		$orderlinks = implode(' | ', $ol);
 		$orderlinks = "Order activity $orderlinks";
 
-		$form .= Html::namespaceSelector(
+		$form = Html::namespaceSelector(
 			array(
 				'selected' => $options['namespace'],
 				'all' => '',
@@ -381,8 +381,9 @@ class SpecialRecentActivityFeed extends ChangesListSpecialPage {
 	}
 
 	function makeChangesLine($list, $rc, $order){
+		$unpatrolled = 1;
 		$s = '';
-		$date = $list->getLanguage()->userDate( $rc_timestamp, $list->getUser() );
+		$date = $list->getLanguage()->userDate( $rc->mAttribs['rc_timestamp'], $list->getUser() );
 		if ( $rc->mAttribs['rc_log_type'] ) {
 			$logtitle = SpecialPage::getTitleFor( 'Log', $rc->mAttribs['rc_log_type'] );
 			$list->insertLog( $s, $logtitle, $rc->mAttribs['rc_log_type'] );
