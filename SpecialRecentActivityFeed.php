@@ -414,7 +414,7 @@ class SpecialRecentActivityFeed extends ChangesListSpecialPage {
 			$s .= $cd . '  <span class="mw-changeslist-separator">. .</span> ';
 		}
 		if ($order != 'article' &&  $rc->mAttribs['rc_type'] != RC_LOG )
-		   $list->insertArticleLink( $s, $rc, $unpatrolled, $watched );
+		   $list->insertArticleLink( $s, $rc, $unpatrolled, 0 );
 		if ( $rc->mAttribs['rc_type'] == RC_LOG ) {
 			$s .= $list->insertLogEntry( $rc );
 		} else {
