@@ -91,6 +91,7 @@ class SpecialRecentActivityFeed extends ChangesListSpecialPage {
 		$opts->add( 'hidepatrolled', false );
 		$opts->add( 'hidemyself', false );
 
+		$opts->add( 'namespace', '', FormOptions::INTNULL );
 		$opts->add( 'order', 'article' );
 
 		return $opts;
@@ -113,7 +114,6 @@ class SpecialRecentActivityFeed extends ChangesListSpecialPage {
 		$panel = array();
 		$panel[] = self::makeLegend( $this->getContext() );
 		$panel[] = $this->optionsPanel( $defaults, $nondefaults );
-		$panel[] = '<hr />';
 
 		$panelString = implode( "\n", $panel );
 
@@ -260,10 +260,10 @@ class SpecialRecentActivityFeed extends ChangesListSpecialPage {
 	 * @return string
 	 */
 	function optionsPanel( $defaults, $nondefaults ) {
+		global $wgScript;
 		global $wgRCLinkLimits, $wgRCLinkDays;
 
 		$options = $nondefaults + $defaults;
-
 		$note = '';
 		$msg = $this->msg( 'rclegend' );
 		if ( !$msg->isDisabled() ) {
@@ -344,7 +344,23 @@ class SpecialRecentActivityFeed extends ChangesListSpecialPage {
 
 		$orderlinks = implode(' | ', $ol);
 		$orderlinks = "Order activity $orderlinks";
-		return "{$note}$rclinks $orderlinks";
+
+		$form .= Html::namespaceSelector(
+			array(
+				'selected' => $options['namespace'],
+				'all' => '',
+				'label' => $this->msg( 'namespace' )->text()
+			), array(
+				'name' => 'namespace',
+				'id' => 'namespace',
+				'class' => 'namespaceselector',
+			)
+		) . '&#160;';
+		$form .= Xml::submitButton( $this->msg( 'allpagessubmit' )->text() ) . "</p>\n";
+		$form .= Html::hidden( 'title', $this->getPageTitle()->getPrefixedText() );
+		$form = Xml::tags( 'form', array( 'action' => $wgScript ), $form );
+
+		return "{$note}$rclinks $orderlinks <hr /> <br /> $form";
 	}
 
 	/**
