@@ -1,0 +1,10 @@
+{
+    "@metadata": {
+        "authors": [
+            "Nischayn22"
+        ]
+    },
+    "recentactivityfeed": "The name of the extension's entry in Special:SpecialPages",
+    "recentactivityfeed-desc": "RecentActivityFeed is a way to generate customizable activity feeds",
+    "recentactivityfeed-legend": "The title for the options legend"
+}
