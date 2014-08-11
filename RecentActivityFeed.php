@@ -20,4 +20,5 @@ $wgExtensionCredits[ 'specialpage' ][] = array(
 
 $wgAutoloadClasses[ 'SpecialRecentActivityFeed' ] = __DIR__ . '/SpecialRecentActivityFeed.php'; # Location of the SpecialRecentActivityFeed class (Tell MediaWiki to load this file)
 $wgMessagesDirs[ 'RecentActivityFeed' ] = __DIR__ . "/i18n"; # Location of localisation files (Tell MediaWiki to load them)
+$wgExtensionMessagesFiles[ 'RecentActivityFeedAlias' ] = __DIR__ . '/RecentActivityFeed.alias.php';
 $wgSpecialPages[ 'RecentActivityFeed' ] = 'SpecialRecentActivityFeed'; # Tell MediaWiki about the new special page and its class name
