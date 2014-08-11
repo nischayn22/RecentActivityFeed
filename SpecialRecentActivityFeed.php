@@ -215,6 +215,7 @@ class SpecialRecentActivityFeed extends ChangesListSpecialPage {
 			} else {
 			   $ordered_rc[$rc->getPerformer()->getName()][] = $rc;
 			}
+			--$limit;
 		}
 
 		foreach($ordered_rc as $key => $rc_list) {
@@ -234,7 +235,6 @@ class SpecialRecentActivityFeed extends ChangesListSpecialPage {
 				$changeLine = $this->makeChangesLine( $list, $rc, $order );
  				if ( $changeLine !== false ) {
 				   $rclistOutput .= "<div style=\"margin-left:20px;\">$changeLine </div>";
-				   --$limit;
 				}
 			}
 		}
