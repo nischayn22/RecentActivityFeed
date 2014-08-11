@@ -358,6 +358,14 @@ class SpecialRecentActivityFeed extends ChangesListSpecialPage {
 		) . '&#160;';
 		$form .= Xml::submitButton( $this->msg( 'allpagessubmit' )->text() ) . "</p>\n";
 		$form .= Html::hidden( 'title', $this->getPageTitle()->getPrefixedText() );
+		$hiddenFields = $nondefaults;
+		unset( $hiddenFields['namespace'] );
+		foreach ( $hiddenFields as $key => $value ) {
+			$form .= Html::hidden( $key, $value );
+		}
+		foreach ( $this->defaultParams as $key => $value ) {
+			$form .= Html::hidden( $key, $value );
+		}
 		$form = Xml::tags( 'form', array( 'action' => $wgScript ), $form );
 
 		return "{$note}$rclinks $orderlinks <hr /> <br /> $form";
