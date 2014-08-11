@@ -306,26 +306,6 @@ class SpecialRecentActivityFeed extends ChangesListSpecialPage {
 		}
 		$dl = $lang->pipeList( $dl );
 
-		// show/hide links
-		$filters = array(
-			'hideminor' => 'rcshowhideminor',
-			'hidebots' => 'rcshowhidebots',
-			'hideanons' => 'rcshowhideanons',
-			'Hideliu' => 'rcshowhideliu',
-			'hidepatrolled' => 'rcshowhidepatr',
-			'hidemyself' => 'rcshowhidemine'
-		);
-
-		$showhide = array( 'show', 'hide' );
-
-		foreach ( $this->getCustomFilters() as $key => $params ) {
-			$filters[$key] = $params['msg'];
-		}
-		// Disable some if needed
-		if ( !$user->useRCPatrol() ) {
-			unset( $filters['hidepatrolled'] );
-		}
-
 		// show from this onward link
 		$timestamp = wfTimestampNow();
 		$now = $lang->userTimeAndDate( $timestamp, $user );
