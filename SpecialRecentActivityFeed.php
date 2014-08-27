@@ -249,6 +249,9 @@ class SpecialRecentActivityFeed extends ChangesListSpecialPage {
 		} else {
 			$this->getOutput()->addHTML( $rclistOutput );
 		}
+
+		// Too less code to move to a different function yet.
+		$this->getOutput()->addModules( 'ext.RecentActivityFeed.inlinediff' );
 	}
 
 

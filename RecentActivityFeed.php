@@ -22,3 +22,14 @@ $wgAutoloadClasses[ 'SpecialRecentActivityFeed' ] = __DIR__ . '/SpecialRecentAct
 $wgMessagesDirs[ 'RecentActivityFeed' ] = __DIR__ . "/i18n"; # Location of localisation files (Tell MediaWiki to load them)
 $wgExtensionMessagesFiles[ 'RecentActivityFeedAlias' ] = __DIR__ . '/RecentActivityFeed.alias.php';
 $wgSpecialPages[ 'RecentActivityFeed' ] = 'SpecialRecentActivityFeed'; # Tell MediaWiki about the new special page and its class name
+
+
+$wgResourceModules['ext.RecentActivityFeed.inlinediff'] = array(
+					  'scripts' => 'modules/ext.inlinediff.js',
+					  'styles' => array(),
+					  'messages' => array(
+						     ),
+						     'dependencies' => array(),
+ 'localBasePath' => __DIR__,
+ 'remoteExtPath' => 'RecentActivityFeed',
+);
